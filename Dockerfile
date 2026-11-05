@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
+RUN mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache/data bootstrap/cache
 
 COPY . .
 
