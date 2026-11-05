@@ -56,7 +56,7 @@
     <h1>Welcome to Our Institution</h1>
 
     <p>
-    Welcome, {{ auth()->user()->fullname ?? 'Name not found' }}!    
+        Welcome, {{ session('user.fullname') }}!
     </p>
     
     <div class="section">

@@ -3,9 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 
 class UserController extends Controller
 {
@@ -20,19 +17,20 @@ class UserController extends Controller
             'fullname' => 'required|string|min:2|max:100',
             'address' => 'required|string|max:255',
             'age' => 'required|integer|min:1|max:100',
-            'username' => 'required|string|min:4|max:30|alpha_num|unique:users,username',
+            'username' => 'required|string|min:4|max:30|alpha_num',
             'password' => 'required|string|min:6|max:50',
         ]);
 
-        User::create([
-            'fullname' => $validated['fullname'],
-            'address' => $validated['address'],
-            'age' => $validated['age'],
-            'username' => $validated['username'],
-            'password' => Hash::make($validated['password']),
-            
+        session([
+            'registered_user' => [
+                'fullname' => $validated['fullname'],
+                'address' => $validated['address'],
+                'age' => $validated['age'],
+                'username' => $validated['username'],
+                'password' => $validated['password'],
+            ]
         ]);
-        
+
         return redirect()->route('login')
             ->with('success', 'Account created successfully. Please login.');
     }
@@ -49,11 +47,22 @@ class UserController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt([
-            'username' => $validated['username'],
-            'password' => $validated['password'],
-        ])) {
-            $request->session()->regenerate();
+        $registeredUser = session('registered_user');
+
+        if (!$registeredUser) {
+            return back()->withErrors([
+                'username' => 'No account found. Please sign up first.'
+            ])->withInput();
+        }
+
+        if (
+            $validated['username'] === $registeredUser['username'] &&
+            $validated['password'] === $registeredUser['password']
+        ) {
+            session([
+                'logged_in' => true,
+                'user' => $registeredUser
+            ]);
 
             return redirect()->route('homepage');
         }
@@ -65,7 +74,7 @@ class UserController extends Controller
 
     public function homepage()
     {
-        if (!Auth::check()) {
+        if (!session('logged_in')) {
             return redirect()->route('login');
         }
 
@@ -74,7 +83,7 @@ class UserController extends Controller
 
     public function chat()
     {
-        if (!Auth::check()) {
+        if (!session('logged_in')) {
             return redirect()->route('login');
         }
 
@@ -83,7 +92,7 @@ class UserController extends Controller
 
     public function calendar()
     {
-        if (!Auth::check()) {
+        if (!session('logged_in')) {
             return redirect()->route('login');
         }
 
@@ -92,7 +101,7 @@ class UserController extends Controller
 
     public function onlineClasses()
     {
-        if (!Auth::check()) {
+        if (!session('logged_in')) {
             return redirect()->route('login');
         }
 
@@ -101,7 +110,7 @@ class UserController extends Controller
 
     public function logoutPage()
     {
-        if (!Auth::check()) {
+        if (!session('logged_in')) {
             return redirect()->route('login');
         }
 
@@ -110,10 +119,7 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $request->session()->forget(['logged_in', 'user']);
 
         return redirect()->route('login')
             ->with('success', 'You have been logged out successfully.');

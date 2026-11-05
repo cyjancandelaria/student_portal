@@ -61,37 +61,6 @@
             text-align: center;
             margin-top: 15px;
         }
- 
-        .password-container {
-            position: relative;
-            width: 100%;
-        }
-
-        .password-container input {
-            width: 100%;
-            padding: 10px 65px 10px 10px;
-            box-sizing: border-box;
-        }
-
-        .password-container button {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: auto;
-            padding: 0;
-            margin: 0;
-            background: transparent;
-            color: #555;
-            border: none;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .password-container button:hover {
-            background: transparent;
-            color: #000;
-        }
     </style>
 </head>
 
@@ -147,11 +116,11 @@
         >
 
         <label>Password</label>
-        <div class="password-container">
-            <input type="password" name="password" id="signupPassword" placeholder="Password" required>
-
-            <button type="button" onclick="togglePassword('signupPassword', this)">👁</button>
-        </div>
+        <input
+            type="password"
+            name="password"
+            required
+        >
 
         <button type="submit">Sign Up</button>
     </form>
@@ -162,20 +131,6 @@
     </div>
 
 </div>
-
-<script>
-    function togglePassword(id, button) {
-        const password = document.getElementById(id);
-
-        if (password.type === "password") {
-            password.type = "text";
-            button.textContent = "Hide";
-        } else {
-            password.type = "password";
-            button.textContent = "Show";
-        }
-    }
-</script>
 
 </body>
 </html>
